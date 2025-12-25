@@ -1,0 +1,26 @@
+﻿python : D:\Nam3_HK1_Dot2\XuLyTiengNoi\app\convert_model.py:93: UserWarning: # 'dynamic_axes' is not recommended when 
+dynamo=True, and may lead to 'torch._dynamo.exc.UserError: Constraints violated.' Supply the 'dynamic_shapes' argument 
+instead if export is unsuccessful.
+At line:1 char:1
++ python convert_model.py 2>&1 | Out-File -Encoding UTF8 convert_log.tx ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (D:\Nam3_HK1_Dot...s unsuccessful.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+  torch.onnx.export(
+W1224 22:11:11.705000 28568 site-packages\torch\onnx\_internal\exporter\_compat.py:114] Setting ONNX exporter to use 
+operator set version 18 because the requested opset_version 11 is a lower version than we have implementations for. 
+Automatic version conversion will be performed, which may not be successful at converting to the requested version. If 
+version conversion is unsuccessful, the opset version of the exported model will be kept at 18. Please consider 
+setting opset_version >=18 to leverage latest ONNX features
+Loading PyTorch model from: models/best_convnext_tiny.pth
+Model loaded successfully!
+Converting to ONNX format...
+[torch.onnx] Obtain model graph for `ConvNeXt([...]` with `torch.export.export(..., strict=False)`...
+[torch.onnx] 
+Error during conversion: 'charmap' codec can't encode character '\u2705' in position 89: character maps to <undefined>
+
+Troubleshooting:
+1. Make sure PyTorch is installed: pip install torch torchvision
+2. Make sure ONNX is installed: pip install onnx
+3. Check if the .pth file is a valid PyTorch checkpoint
