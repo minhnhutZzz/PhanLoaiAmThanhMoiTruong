@@ -9,6 +9,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from io import BytesIO
 from PIL import Image
+from src.utils.performance_metrics import performance_metrics
 
 
 # Constants - match Kaggle exactly
@@ -29,6 +30,9 @@ def load_and_preprocess_audio(file_path, device='cpu'):
         preprocessed: Tensor ready for model (1, 1, 128, 431)
         spec_for_display: Mel-spectrogram for visualization (before normalization)
     """
+    # Mark preprocessing start
+    performance_metrics.mark_phase_start('preprocessing')
+    
     # a. Load audio (trying to use torchaudio.load directly, fallback to soundfile)
     try:
         waveform, sr = torchaudio.load(file_path)
@@ -78,6 +82,9 @@ def load_and_preprocess_audio(file_path, device='cpu'):
         
         # h. Add batch and channel dimensions and convert to numpy
         preprocessed = spec.unsqueeze(0).unsqueeze(0).numpy().astype(np.float32)  # (1, 1, 128, 431)
+    
+    # Mark preprocessing end
+    performance_metrics.mark_phase_end('preprocessing')
     
     return preprocessed, spec_for_display
 

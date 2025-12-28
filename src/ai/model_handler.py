@@ -7,6 +7,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 from pathlib import Path
+from src.utils.performance_metrics import performance_metrics
 
 
 # ESC-50 Dataset Classes (50 environmental sounds)
@@ -131,6 +132,9 @@ class SoundClassifier:
             return self._mock_predict()
         
         try:
+            # Mark inference phase start
+            performance_metrics.mark_phase_start('inference')
+            
             # Convert to torch tensor if needed
             if isinstance(preprocessed_input, np.ndarray):
                 input_tensor = torch.from_numpy(preprocessed_input).float().to(self.device)
@@ -143,6 +147,12 @@ class SoundClassifier:
             with torch.no_grad():
                 outputs = self.model(input_tensor)
             
+            # Mark inference phase end
+            performance_metrics.mark_phase_end('inference')
+            
+            # Mark postprocessing start
+            performance_metrics.mark_phase_start('postprocessing')
+            
             # Get probabilities
             probabilities = torch.softmax(outputs, dim=1)[0].cpu().numpy()
             
@@ -151,13 +161,18 @@ class SoundClassifier:
             top_prob = probabilities[top_idx]
             top_label = self.classes[top_idx]
             
-            return {
+            result = {
                 'label': top_label,
                 'confidence': float(top_prob * 100),
                 'icon': SOUND_ICONS.get(top_label, "🔊"),
                 'is_alert': top_label in ALERT_SOUNDS,
                 'all_probs': probabilities
             }
+            
+            # Mark postprocessing end
+            performance_metrics.mark_phase_end('postprocessing')
+            
+            return result
             
         except Exception as e:
             print(f"[ERROR] Prediction error: {e}")

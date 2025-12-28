@@ -10,6 +10,8 @@ import base64
 from src.ai.audio_processor import load_and_preprocess_audio, mel_spectrogram_to_image
 from src.ai.model_handler import SoundClassifier
 from src.utils.state import app_state
+from src.utils.performance_metrics import performance_metrics
+from src.ui.emergency_alert import EmergencyAlertOverlay, is_emergency_sound
 
 
 class FileAnalysisView:
@@ -26,6 +28,11 @@ class FileAnalysisView:
         self.result_container = None
         self.analyze_button = None
         self.progress_ring = None
+        self.play_button = None
+        self.audio_player = None
+        
+        # Emergency alert
+        self.emergency_alert = EmergencyAlertOverlay(page)
         
         self.current_file_path = None
     
@@ -68,6 +75,18 @@ class FileAnalysisView:
             )
         )
         
+        # Play audio button
+        self.play_button = ft.ElevatedButton(
+            "🔊 Play Audio",
+            icon=ft.Icons.PLAY_ARROW,
+            disabled=True,
+            on_click=self.play_audio,
+            style=ft.ButtonStyle(
+                bgcolor="#8B5CF6",
+                color="white"
+            )
+        )
+        
         # Spectrogram display
         self.spectrogram_image = ft.Image(
             visible=False,
@@ -101,7 +120,7 @@ class FileAnalysisView:
                     content=ft.Column([
                         ft.Text("Upload Audio File", size=18, weight=ft.FontWeight.BOLD),
                         ft.Row([upload_button, self.selected_file_text], spacing=15),
-                        ft.Row([self.analyze_button, self.progress_ring], spacing=10),
+                        ft.Row([self.analyze_button, self.play_button, self.progress_ring], spacing=10),
                     ], spacing=15),
                     padding=20,
                     border=ft.border.all(1, "#334155"),
@@ -140,6 +159,20 @@ class FileAnalysisView:
             self.current_file_path = file.path
             self.selected_file_text.value = f"Selected: {file.name}"
             self.analyze_button.disabled = False
+            self.play_button.disabled = False
+            
+            # Create audio player with the selected file
+            if self.audio_player:
+                # Remove old player if exists
+                self.page.overlay.remove(self.audio_player)
+            
+            self.audio_player = ft.Audio(
+                src=self.current_file_path,
+                autoplay=False,
+                volume=1.0,
+                on_state_changed=self.audio_state_changed
+            )
+            self.page.overlay.append(self.audio_player)
             self.page.update()
     
     def analyze_file(self, e):
@@ -157,7 +190,10 @@ class FileAnalysisView:
     
     def _run_analysis(self):
         """Run analysis in background thread"""
-        try:            
+        try:
+            # Start measurement
+            performance_metrics.start_measurement()
+            
             # Load and preprocess audio (EXACTLY like Kaggle)
             import torch
             device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -183,6 +219,17 @@ class FileAnalysisView:
             
             # Get top-5 predictions
             top_predictions = self.classifier.get_top_k_predictions(preprocessed, k=5)
+            
+            # End measurement
+            performance_metrics.end_measurement()
+            
+            # Check for emergency sound
+            if is_emergency_sound(result['label'], result['confidence']):
+                self.emergency_alert.show_alert(
+                    result['label'],
+                    result['confidence'],
+                    result['icon']
+                )
             
             # Add to history
             app_state.add_to_history(
@@ -285,3 +332,33 @@ class FileAnalysisView:
         img.save(buf, format='PNG')
         buf.seek(0)
         return base64.b64encode(buf.read()).decode()
+    
+    def play_audio(self, e):
+        """Play or pause the audio"""
+        if not self.current_file_path or not self.audio_player:
+            return
+        
+        # Simple toggle - just play or pause
+        try:
+            if self.play_button.text == "🔊 Play Audio":
+                # Start playing
+                self.audio_player.play()
+                self.play_button.text = "⏸️ Pause"
+                self.play_button.icon = ft.Icons.PAUSE
+            else:
+                # Pause
+                self.audio_player.pause()
+                self.play_button.text = "🔊 Play Audio"
+                self.play_button.icon = ft.Icons.PLAY_ARROW
+            
+            self.page.update()
+        except Exception as ex:
+            print(f"Audio playback error: {ex}")
+    
+    def audio_state_changed(self, e):
+        """Handle audio state changes"""
+        # Reset button when audio finishes
+        if e.data == "completed":
+            self.play_button.text = "🔊 Play Audio"
+            self.play_button.icon = ft.Icons.PLAY_ARROW
+            self.page.update()

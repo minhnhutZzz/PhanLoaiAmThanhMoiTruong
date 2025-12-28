@@ -13,6 +13,7 @@ import base64
 from src.ai.audio_processor import generate_mel_spectrogram, preprocess_for_model, waveform_to_image
 from src.ai.model_handler import SoundClassifier
 from src.utils.state import app_state
+from src.ui.emergency_alert import EmergencyAlertOverlay, is_emergency_sound
 
 
 class LiveMonitorView:
@@ -39,6 +40,9 @@ class LiveMonitorView:
         self.waveform_image = None
         self.prediction_container = None
         self.alert_overlay = None
+        
+        # Emergency alert
+        self.emergency_alert = EmergencyAlertOverlay(page)
         
         # Prediction thread
         self.prediction_thread = None
@@ -273,8 +277,15 @@ class LiveMonitorView:
                     if app_state.get_setting('enable_notifications'):
                         self._show_notification(result)
                     
-                    # Visual alert for alert sounds
-                    if result['is_alert'] and app_state.get_setting('enable_visual_alerts'):
+                    # Emergency alert for critical sounds
+                    if is_emergency_sound(result['label'], result['confidence']):
+                        self.emergency_alert.show_alert(
+                            result['label'],
+                            result['confidence'],
+                            result['icon']
+                        )
+                    # Visual alert for alert sounds (fallback)
+                    elif result['is_alert'] and app_state.get_setting('enable_visual_alerts'):
                         self._trigger_visual_alert()
                 
                 # Small delay

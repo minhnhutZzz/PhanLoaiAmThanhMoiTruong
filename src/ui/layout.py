@@ -8,6 +8,8 @@ from src.ui.file_analysis import FileAnalysisView
 from src.ui.live_monitor import LiveMonitorView
 from src.ui.history import HistoryView
 from src.ui.settings import SettingsView
+from src.ui.technical_stats import TechnicalStatsView
+from src.ui.sound_library import SoundLibraryView
 from src.ai.model_handler import SoundClassifier
 from src.utils.state import app_state
 import psutil
@@ -60,6 +62,16 @@ class MainLayout:
                     label="Live Monitor",
                 ),
                 ft.NavigationRailDestination(
+                    icon=ft.Icons.ANALYTICS_OUTLINED,
+                    selected_icon=ft.Icons.ANALYTICS,
+                    label="Tech Stats",
+                ),
+                ft.NavigationRailDestination(
+                    icon=ft.Icons.LIBRARY_MUSIC_OUTLINED,
+                    selected_icon=ft.Icons.LIBRARY_MUSIC,
+                    label="Sound Library",
+                ),
+                ft.NavigationRailDestination(
                     icon=ft.Icons.HISTORY_OUTLINED,
                     selected_icon=ft.Icons.HISTORY,
                     label="History",
@@ -109,8 +121,12 @@ class MainLayout:
         elif self.current_view_index == 2:
             self.content_area.content = self.live_monitor_view.build()
         elif self.current_view_index == 3:
-            self.content_area.content = HistoryView(self.page)
+            self.content_area.content = TechnicalStatsView(self.page).build()
         elif self.current_view_index == 4:
+            self.content_area.content = SoundLibraryView(self.page).build()
+        elif self.current_view_index == 5:
+            self.content_area.content = HistoryView(self.page)
+        elif self.current_view_index == 6:
             self.content_area.content = SettingsView(self.page)
         
         self.page.update()

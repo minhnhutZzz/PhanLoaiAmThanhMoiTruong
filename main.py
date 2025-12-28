@@ -42,14 +42,6 @@ def main(page: ft.Page):
     
     # Add to page
     page.add(main_layout.build())
-    
-    # Welcome message
-    page.snack_bar = ft.SnackBar(
-        content=ft.Text("🎧 Welcome to S-Hear Dashboard!"),
-        bgcolor="#00D9FF"
-    )
-    page.snack_bar.open = True
-    page.update()
 
 
 if __name__ == "__main__":
