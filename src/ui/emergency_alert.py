@@ -220,18 +220,25 @@ class EmergencyAlertOverlay:
 
 
 # Helper function to check if sound is emergency
-def is_emergency_sound(sound_label: str, confidence: float, threshold: float = 70.0) -> bool:
+def is_emergency_sound(sound_label: str, confidence: float, threshold: float = None) -> bool:
     """
     Check if detected sound is emergency
     
     Args:
         sound_label: Detected sound label
         confidence: Confidence percentage
-        threshold: Minimum confidence threshold for alert
+        threshold: Minimum confidence threshold for alert (uses app_state if None)
     
     Returns:
         True if emergency alert should be triggered
     """
+    from src.utils.state import app_state
+    
+    # Use app_state threshold if not provided
+    if threshold is None:
+        threshold = app_state.get_setting('confidence_threshold')
+    
     EMERGENCY_SOUNDS = ["siren", "car_horn", "crackling_fire", "crying_baby", "glass_breaking", "fireworks"]
     
     return sound_label.lower() in EMERGENCY_SOUNDS and confidence >= threshold
+

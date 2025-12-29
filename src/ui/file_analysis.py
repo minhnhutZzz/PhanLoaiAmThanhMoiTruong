@@ -223,13 +223,15 @@ class FileAnalysisView:
             # End measurement
             performance_metrics.end_measurement()
             
-            # Check for emergency sound
+            # Check for emergency sound and show alert if enabled
             if is_emergency_sound(result['label'], result['confidence']):
-                self.emergency_alert.show_alert(
-                    result['label'],
-                    result['confidence'],
-                    result['icon']
-                )
+                # Only show emergency alert if visual alerts are enabled
+                if app_state.get_setting('enable_visual_alerts'):
+                    self.emergency_alert.show_alert(
+                        result['label'],
+                        result['confidence'],
+                        result['icon']
+                    )
             
             # Add to history
             app_state.add_to_history(

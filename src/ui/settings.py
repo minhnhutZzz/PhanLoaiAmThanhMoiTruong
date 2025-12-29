@@ -35,21 +35,6 @@ def SettingsView(page: ft.Page):
         active_color="#00D9FF"
     )
     
-    def on_notifications_change(e):
-        """Handle notifications switch change"""
-        value = e.control.value
-        app_state.update_setting('enable_notifications', value)
-        
-        # Show confirmation
-        page.snack_bar = ft.SnackBar(
-            content=ft.Text(
-                f"Notifications {'enabled' if value else 'disabled'}"
-            ),
-            bgcolor="#10B981" if value else "#94A3B8"
-        )
-        page.snack_bar.open = True
-        page.update()
-    
     def on_visual_alerts_change(e):
         """Handle visual alerts switch change"""
         value = e.control.value
@@ -58,20 +43,14 @@ def SettingsView(page: ft.Page):
         # Show confirmation
         page.snack_bar = ft.SnackBar(
             content=ft.Text(
-                f"Visual alerts {'enabled' if value else 'disabled'}"
+                f"Emergency alerts {'enabled' if value else 'disabled'}"
             ),
             bgcolor="#10B981" if value else "#94A3B8"
         )
         page.snack_bar.open = True
         page.update()
     
-    # Notification switches
-    notifications_switch = ft.Switch(
-        value=app_state.get_setting('enable_notifications'),
-        on_change=on_notifications_change,
-        active_color="#10B981"
-    )
-    
+    # Visual alerts switch
     visual_alerts_switch = ft.Switch(
         value=app_state.get_setting('enable_visual_alerts'),
         on_change=on_visual_alerts_change,
@@ -103,7 +82,7 @@ def SettingsView(page: ft.Page):
                         threshold_text,
                     ], spacing=10),
                     ft.Text(
-                        "Only show predictions above this confidence level",
+                        "Ngưỡng kích hoạt cảnh báo khẩn cấp (>= ngưỡng này sẽ có emergency alert)",
                         size=12,
                         color="#94A3B8",
                         italic=True
@@ -119,37 +98,20 @@ def SettingsView(page: ft.Page):
             
             ft.Container(height=20),
             
-            # Notification Settings
+            # Alert Settings
             ft.Container(
                 content=ft.Column([
-                    ft.Text("Notification Settings", size=20, weight=ft.FontWeight.BOLD),
+                    ft.Text("Alert Settings", size=20, weight=ft.FontWeight.BOLD),
                     
                     ft.Container(height=10),
                     
-                    # Enable notifications
-                    ft.Row([
-                        ft.Icon(ft.Icons.NOTIFICATIONS, color="#00D9FF"),
-                        ft.Column([
-                            ft.Text("Enable Notifications", size=16),
-                            ft.Text(
-                                "Show snackbar notifications for detections",
-                                size=12,
-                                color="#94A3B8",
-                                italic=True
-                            ),
-                        ], spacing=2, expand=True),
-                        notifications_switch,
-                    ], spacing=10, alignment=ft.MainAxisAlignment.SPACE_BETWEEN),
-                    
-                    ft.Divider(color="#334155"),
-                    
-                    # Visual alerts
+                    # Visual alerts (Emergency Alert)
                     ft.Row([
                         ft.Icon(ft.Icons.WARNING, color="#EF4444"),
                         ft.Column([
-                            ft.Text("Visual Alerts", size=16),
+                            ft.Text("Emergency Alert", size=16),
                             ft.Text(
-                                "Flash screen red for alert sounds (siren, alarm, etc.)",
+                                "Hiệu ứng nháy đỏ toàn màn hình cho âm thanh nguy hiểm (siren, fire...)",
                                 size=12,
                                 color="#94A3B8",
                                 italic=True
@@ -220,18 +182,23 @@ def SettingsView(page: ft.Page):
                 content=ft.Column([
                     ft.Text("About", size=20, weight=ft.FontWeight.BOLD),
                     ft.Text(
-                        "S-Hear Intelligent Dashboard v1.0",
+                        "Phân Loại Âm Thanh Môi Trường v1.0",
                         size=14,
                         color="#94A3B8"
                     ),
                     ft.Text(
-                        "AI-Powered Environmental Sound Recognition System",
+                        "Hệ thống nhận diện âm thanh môi trường sử dụng Deep Learning",
                         size=12,
                         color="#94A3B8",
                         italic=True
                     ),
                     ft.Text(
-                        "Built with Flet, ONNX Runtime, and ConvNeXt-Tiny",
+                        "Built with Flet, PyTorch, and ConvNeXt-Tiny",
+                        size=12,
+                        color="#94A3B8"
+                    ),
+                    ft.Text(
+                        "Dataset: ESC-50 (50 environmental sounds)",
                         size=12,
                         color="#94A3B8"
                     ),

@@ -273,17 +273,14 @@ class LiveMonitorView:
                     # Update prediction display
                     self._update_prediction(result)
                     
-                    # Show notification if enabled
-                    if app_state.get_setting('enable_notifications'):
-                        self._show_notification(result)
-                    
-                    # Emergency alert for critical sounds
+                    # Emergency alert for critical sounds (only if visual alerts enabled)
                     if is_emergency_sound(result['label'], result['confidence']):
-                        self.emergency_alert.show_alert(
-                            result['label'],
-                            result['confidence'],
-                            result['icon']
-                        )
+                        if app_state.get_setting('enable_visual_alerts'):
+                            self.emergency_alert.show_alert(
+                                result['label'],
+                                result['confidence'],
+                                result['icon']
+                            )
                     # Visual alert for alert sounds (fallback)
                     elif result['is_alert'] and app_state.get_setting('enable_visual_alerts'):
                         self._trigger_visual_alert()

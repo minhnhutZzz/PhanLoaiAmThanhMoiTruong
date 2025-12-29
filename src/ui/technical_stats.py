@@ -102,21 +102,21 @@ class TechnicalStatsView:
                         self.preprocessing_text,
                         "🔄",
                         "#00D9FF",
-                        "Time to convert audio to Mel-Spectrogram (128x431)"
+                        "Thời gian chuyển đổi audio thành Mel-Spectrogram (128x431)"
                     ),
                     self._create_metric_card(
                         "Inference Latency",
                         self.inference_text,
                         "🚀",
                         "#10B981",
-                        "Model computation time (forward pass)"
+                        "Thời gian model xử lý và suy luận (forward pass)"
                     ),
                     self._create_metric_card(
                         "Post-processing Time",
                         self.postprocessing_text,
                         "⚙️",
                         "#F59E0B",
-                        "Label processing and UI update time"
+                        "Thời gian xử lý nhãn và cập nhật giao diện"
                     ),
                 ], spacing=15, wrap=True),
                 
@@ -128,14 +128,14 @@ class TechnicalStatsView:
                         self.total_latency_text,
                         "⚡",
                         "#8B5CF6",
-                        "Total time from audio input to result display"
+                        "Tổng thời gian từ đầu vào đến hiển thị kết quả"
                     ),
                     self._create_metric_card(
                         "Real-time FPS",
                         self.fps_text,
                         "📊",
                         "#EC4899",
-                        "Inference throughput (frames per second)"
+                        "Tốc độ xử lý (số khung hình mỗi giây)"
                     ),
                 ], spacing=15, wrap=True),
             ], spacing=5),

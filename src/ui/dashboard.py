@@ -11,7 +11,8 @@ def create_stat_card(title: str, value: str, icon: str, color: str):
         content=ft.Column([
             ft.Row([
                 ft.Text(icon, size=30),
-                ft.Text(value, size=28, weight=ft.FontWeight.BOLD, color=color)
+                ft.Text(value, size=24, weight=ft.FontWeight.BOLD, color=color, 
+                       text_align=ft.TextAlign.CENTER, overflow=ft.TextOverflow.VISIBLE)
             ], alignment=ft.MainAxisAlignment.CENTER),
             ft.Text(title, size=14, color="#94A3B8", text_align=ft.TextAlign.CENTER)
         ], horizontal_alignment=ft.CrossAxisAlignment.CENTER, spacing=10),
@@ -19,7 +20,7 @@ def create_stat_card(title: str, value: str, icon: str, color: str):
         border=ft.border.all(2, color),
         border_radius=10,
         bgcolor="#1E293B",
-        width=200,
+        width=240,
         height=120
     )
 
@@ -32,13 +33,13 @@ def DashboardView(page: ft.Page):
     welcome_text = ft.Container(
         content=ft.Column([
             ft.Text(
-                "🎧 S-Hear Intelligent Dashboard",
+                "🎵 Phân Loại Âm Thanh Môi Trường",
                 size=36,
                 weight=ft.FontWeight.BOLD,
                 color="#00D9FF"
             ),
             ft.Text(
-                "AI-Powered Environmental Sound Recognition",
+                "Hệ thống nhận diện âm thanh sử dụng Deep Learning",
                 size=16,
                 color="#94A3B8",
                 italic=True
@@ -57,7 +58,7 @@ def DashboardView(page: ft.Page):
         ),
         create_stat_card(
             "Most Common",
-            stats['most_common'] or "N/A",
+            (stats['most_common'].replace('_', ' ').title() if stats['most_common'] else "N/A"),
             "🔊",
             "#10B981"
         ),

@@ -1,6 +1,6 @@
-# 🎧 S-Hear Intelligent Dashboard
+# 🎵 Phân Loại Âm Thanh Môi Trường
 
-AI-Powered Environmental Sound Recognition System using ConvNeXt-Tiny and ESC-50 Dataset.
+Hệ thống nhận diện âm thanh môi trường sử dụng Deep Learning với ConvNeXt-Tiny và tập dữ liệu ESC-50.
 
 ## 🌟 Features
 
