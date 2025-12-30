@@ -25,7 +25,7 @@ class LiveMonitorView:
         
         # Audio settings
         self.sample_rate = 44100  # Match training sample rate
-        self.duration = 2.0  # Analyze every 2 seconds
+        self.duration = 5.0  # Match training duration (ESC-50 uses 5 second clips)
         self.buffer_size = int(self.sample_rate * self.duration)
         
         # Recording state
@@ -67,6 +67,17 @@ class LiveMonitorView:
             disabled=True,
             style=ft.ButtonStyle(
                 bgcolor="#EF4444",
+                color="white"
+            )
+        )
+        
+        # Refresh button
+        self.refresh_button = ft.ElevatedButton(
+            "🔄 Refresh",
+            icon=ft.Icons.REFRESH,
+            on_click=self.refresh_display,
+            style=ft.ButtonStyle(
+                bgcolor="#8B5CF6",
                 color="white"
             )
         )
@@ -122,6 +133,7 @@ class LiveMonitorView:
                             ft.Row([
                                 self.start_button,
                                 self.stop_button,
+                                self.refresh_button,
                                 self.status_text
                             ], spacing=15),
                             ft.Text(
@@ -219,6 +231,32 @@ class LiveMonitorView:
         self.status_text.color = "#94A3B8"
         self.page.update()
     
+    def refresh_display(self, e):
+        """Clear all displays"""
+        # Hide waveform
+        self.waveform_image.visible = False
+        
+        # Hide prediction
+        self.prediction_container.visible = False
+        
+        # Clear audio queue
+        while not self.audio_queue.empty():
+            try:
+                self.audio_queue.get_nowait()
+            except queue.Empty:
+                break
+        
+        # Update UI
+        self.page.update()
+        
+        # Show confirmation
+        self.page.snack_bar = ft.SnackBar(
+            content=ft.Text("✅ Display cleared"),
+            bgcolor="#10B981"
+        )
+        self.page.snack_bar.open = True
+        self.page.update()
+    
     def audio_callback(self, indata, frames, time_info, status):
         """Callback for audio stream"""
         if status:
@@ -260,7 +298,10 @@ class LiveMonitorView:
                 # Predict
                 result = self.classifier.predict(preprocessed)
                 
-                # Check threshold
+                # Always update prediction display
+                self._update_prediction(result)
+                
+                # Check threshold for history and alerts
                 threshold = app_state.get_setting('confidence_threshold')
                 if result['confidence'] >= threshold:
                     # Add to history
@@ -269,9 +310,6 @@ class LiveMonitorView:
                         result['confidence'],
                         source="live"
                     )
-                    
-                    # Update prediction display
-                    self._update_prediction(result)
                     
                     # Emergency alert for critical sounds (only if visual alerts enabled)
                     if is_emergency_sound(result['label'], result['confidence']):
